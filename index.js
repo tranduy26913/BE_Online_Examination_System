@@ -10,8 +10,6 @@ import passport from 'passport'
 import rateLimit from 'express-rate-limit'
 import session from 'express-session'
 import morgan from 'morgan'
-import MongoStore from 'connect-mongo'
-import RedisStore from "connect-redis"
 
 dotenv.config()
 import './services/passport.js'
@@ -38,8 +36,7 @@ app.use(session({
    secret: 'somethingsecretgoeshere',
    resave: false,
    saveUninitialized: true,
-   cookie: { secure: true },
-   store: new RedisStore(),
+   cookie: { secure: true }
 }));
 
 app.use("/auth/login", loginLimiter);
