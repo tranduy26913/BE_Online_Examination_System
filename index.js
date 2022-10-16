@@ -10,6 +10,8 @@ import passport from 'passport'
 import rateLimit from 'express-rate-limit'
 import session from 'express-session'
 import morgan from 'morgan'
+import MongoStore from 'connect-mongo'
+import RedisStore from "connect-redis"
 
 dotenv.config()
 import './services/passport.js'
@@ -18,12 +20,6 @@ const PORT = process.env.PORT ||5000;
 const URI=process.env.MONGODB_URI;
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:true,limit:'3mb'}))//Giới hạn kích thước request gửi lên server phải nhỏ hơn 3mb
-
-console.log("Reload")
-if(global.test)
-  console.log(global.test)
-
-import './services/connect.js'
 
 
 const limiter = rateLimit({
@@ -42,7 +38,8 @@ app.use(session({
    secret: 'somethingsecretgoeshere',
    resave: false,
    saveUninitialized: true,
-   cookie: { secure: true }
+   cookie: { secure: true },
+   store: new RedisStore(),
 }));
 
 app.use("/auth/login", loginLimiter);
