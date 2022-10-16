@@ -15,9 +15,16 @@ dotenv.config()
 import './services/passport.js'
 const app=express();
 const PORT = process.env.PORT ||5000;
-const URI=process.env.MONGODB_URL;
+const URI=process.env.MONGODB_URI;
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended:true,limit:'3mb'}))//Giới hạn kích thước request gửi lên server phải nhỏ hơn 3mb
+
+console.log("Reload")
+if(global.test)
+  console.log(global.test)
+
+import './services/connect.js'
+
 
 const limiter = rateLimit({
   windowMs: 10 * 60 * 1000, 
