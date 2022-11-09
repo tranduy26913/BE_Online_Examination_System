@@ -5,8 +5,8 @@ const router = express.Router();
 
 router.post('/create-exam', verifyToken, ExamController.CreateExam);
 
-//router.put('/', ExamController.UpdateExam);
+router.put('/update-exam', verifyToken, ExamController.UpdateExam);
 
 router.get('/get-exambyslug', verifyToken, ExamController.getExamBySlug);
-
+router.get("/add-question-with-questionbank", verifyToken, ExamController.addQuestionWithQuestionBank)
 module.exports = router;
