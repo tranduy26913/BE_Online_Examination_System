@@ -3,6 +3,7 @@ const mongoose = require("mongoose");
 const Course = require("../models/Course")
 const User = require("../models/User")
 const QuestionBank = require("../models/QuestionBank");
+const { STATUS } = require("../utils/enum");
 
 const ExamController = {
     CreateExam: async (req, res) => {
@@ -217,53 +218,14 @@ const ExamController = {
                 return res.status(400).json({ message: "Không tồn tại ngân hàng câu hỏi!" })
 
             const questionsResult = await QuestionBank.findOne({})
-
-
-
-            /*
-            const examResult = await ExamResult.findOne({ takeExamId: mongoose.Types.ObjectId(takeExamId) })
-                .populate('takeExamId')
-            const exam = await Exam.findById(examResult.takeExamId.exam)
-              .populate({
-                path: "questions.question",
-                populate: {
-                  path: "answers",
-                  select: "id content isCorrect",
-                },
-              })
-            let { questions, startTime, maxTimes, ...data } = exam._doc;
-            questions = questions.map((item) => item.question);
-      
-            const result = examResult.result
-      
-            questions = questions.map(item => {
-      
-              let resultAnswer = result.find(e => e.question?.toString() === item.id.toString())
-              let choose = []
-              if (resultAnswer) {
-                choose = resultAnswer.answers
-              }
-      
-              return { ...item._doc, choose }
-            })
-      
-            console.log(questions)
-            return res.status(200).json(
-              {
-                name: examResult.takeExamId.name,
-                startTime: examResult.takeExamId.startTime,
-                submitTime: examResult.takeExamId.submitTime,
-                questions: questions
-              })
-              */
             return res.status(200).json({
-                message: "Lấy ds câu hỏi thành con nhà bà công!",
+                message: "Lấy danh câu hỏi thành công!",
                 questions: questions
             })
         }
         catch (error) {
             console.log(error);
-            res.status(400).json({ message: "Lỗi hiện điểm" });
+            res.status(400).json({ message: "Lỗi lấy danh sách câu hỏi" });
         }
 
     },
@@ -326,6 +288,76 @@ const ExamController = {
             res.status(400).json({ message: "Lỗi tạo!" })
         }
     },
+    publicExam: async(req, res)=>{
+        try {
+            const username = req.user.sub
+            const { id } = req.query
+
+            if (!username) return res.status(400).json({ message: "Không có người dùng" })
+            const user = await User.findOne({ username })
+
+            if (!user) return res.status(400).json({ message: "Không có người dùng" })
+            let exitsExam = await Exam.findById(id)
+            
+            
+            console.log(exitsExam)
+
+            let error = exitsExam.validateSync()
+            if (error) {
+                console.log(error)
+                return res.status(400).json({
+                    message: "Xuất bản bài thi thất bại!"
+                })
+            }
+            const status ="public"
+            exitsExam = await Exam.findByIdAndUpdate(id, {status
+            }, { new: true })
+            return res.status(200).json({
+                message: "Xuất bản bài thi thành công",
+
+                slug: exitsExam._doc.slug
+            })
+
+        } catch (error) {
+            console.log(error)
+            res.status(400).json({ message: "Lỗi xuất bản bài thi" })
+        }
+    },
+    CloseExam: async(req, res)=>{
+        try {
+            const username = req.user.sub
+            const { id } = req.query
+
+            if (!username) return res.status(400).json({ message: "Không có người dùng" })
+            const user = await User.findOne({ username })
+
+            if (!user) return res.status(400).json({ message: "Không có người dùng" })
+            let exitsExam = await Exam.findById(id)
+            
+            
+            console.log(exitsExam)
+
+            let error = exitsExam.validateSync()
+            if (error) {
+                console.log(error)
+                return res.status(400).json({
+                    message: "Đóng bài thi thất bại!"
+                })
+            }
+            
+            exitsExam = await Exam.findByIdAndUpdate(id, {status: STATUS.CLOSE
+            }, { new: true })
+            return res.status(200).json({
+                message: "Đóng bài thi thành công",
+
+                slug: exitsExam._doc.slug
+            })
+
+        } catch (error) {
+            console.log(error)
+            res.status(400).json({ message: "Lỗi đóng bài thi" })
+        }
+    }
 };
 
 
