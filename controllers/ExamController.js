@@ -9,7 +9,7 @@ const ExamController = {
     CreateExam: async (req, res) => {
         try {
             const username = req.user.sub
-            const { name, description, courseId, numberOfQuestion, viewPoint, viewAnswer,
+            const { name, description, courseId, numberofQuestions, viewPoint, viewAnswer,
                 attemptsAllowed, maxPoints, typeofPoint, maxTimes, tracking, shuffle, status, startTime, endTime } = req.body
 
             if (!username) return res.status(400).json({ message: "Không có người dùng" })
@@ -37,16 +37,16 @@ const ExamController = {
                 name,
                 description,
                 creatorId: user.id,
-                numberOfQuestion,
+                numberofQuestions: 0,
                 viewPoint,
                 viewAnswer,
                 attemptsAllowed,
-                maxPoints,
+                maxPoints: 0,
                 typeofPoint,
                 maxTimes,
                 tracking,
                 shuffle,
-                status,
+                status: STATUS.PRIVATE,
                 startTime: new Date(startTime),
                 endTime: new Date(endTime)
             })
@@ -153,6 +153,7 @@ const ExamController = {
                 return res.status(400).json({ message: "Thời gian của khoá học không hợp lệ" })
 
             }
+
             let exitExam = new Exam({
                 id,
                 name,
@@ -199,7 +200,7 @@ const ExamController = {
     },
     createQuestionWithQuestionBank: async (req, res) => {
         try {
-            const { examId, questionBankId, numberOfQuestion, random } = req.body;
+            const { examId, questionBankId, numberofQuestions, random } = req.body;
             const username = req.user.sub;
 
             if (!username)
@@ -236,7 +237,7 @@ const ExamController = {
         try {
             //Lấy cái parameter
             const username = req.user?.sub
-            const { examId, questionBankId, numberOfQuestion, random } = req.body
+            const { examId, questionBankId, numberofQuestions, random } = req.body
 
 
             const user = await User.findOne({ username })
@@ -257,7 +258,7 @@ const ExamController = {
             var n = 1
             var index = 1
             if (random === true) {
-                while (n <= numberOfQuestion) {
+                while (n <= numberofQuestions) {
                     var newQuestion = questionBank.questions[Math.floor(Math.random() * questionBank.questions.length)]
 
                     //console.log(newQuestion)
@@ -270,7 +271,7 @@ const ExamController = {
 
                     index++;
 
-                    if (index === numberOfQuestion)
+                    if (index === numberofQuestions)
                         return res.status(400).json({ message: "Các câu hỏi đã tồn tại trong hệ thống" })
                 }
 
@@ -288,10 +289,10 @@ const ExamController = {
             res.status(400).json({ message: "Lỗi tạo!" })
         }
     },
-    publicExam: async(req, res)=>{
+    PublicExam: async(req, res)=>{
         try {
             const username = req.user.sub
-            const { id } = req.query
+            const { id } = req.body
 
             if (!username) return res.status(400).json({ message: "Không có người dùng" })
             const user = await User.findOne({ username })
@@ -326,7 +327,7 @@ const ExamController = {
     CloseExam: async(req, res)=>{
         try {
             const username = req.user.sub
-            const { id } = req.query
+            const { id } = req.body
 
             if (!username) return res.status(400).json({ message: "Không có người dùng" })
             const user = await User.findOne({ username })
